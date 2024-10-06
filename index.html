@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lorem ipsum</title>
+    <title>Solorrery</title>
     <link rel="stylesheet" href="/styles/style.css">
 
     <script type="importmap">
@@ -16,40 +16,87 @@
     </script>
 </head>
 <body>
-    <!-- <div class="header no_margin no_padding">
-        <h1 class="h_text no_margin no_padding">Lorem ipsum</h1>
-    </div> -->
-    <!-- <div class="main_renderer">
-        <canvas class="full_size no_margin no_padding" id="glcanvas"></canvas>
-    </div> -->
-
     <div id="overlay">
         <div id="overlay_left_sidebar">
             <div class="title_bar inline elem_row">
                 <button id="left_sidebar_minimize" class="auto_ignore">×</button>
-                <span>Hi!</span>
+                <span style="color: white;">Options</span>
             </div>
             <hr>
             <div class="content">
+                <table>
+                    <tr>
+                        <td><h4 class="inline" style="margin-right: 5px;">Go-to body :</h4></td>
+                        <td><input type="text" class="inline" id="goto_body_input"></td>
+                        <td><button id="goto_body_button">Go!</button></td>
+                    </tr>
+                    <tr>
+                        <td><h4 class="inline" style="margin-right: 5px;">Face towards body :</h4></td>
+                        <td><input type="text" class="inline" id="face_body_input"></td>
+                        <td><button id="face_body_button">Turn!</button></td>
+                    </tr>
+                    <tr>
+                        <td><span id="current_body">None</span></td>
+                        <td><span id="body_result"></span></td>
+                    </tr>
+                </table>
+                <hr>
+                <h3 style="color: #EEE">Simulation :</h3>
+                <h5 style="font-weight: lighter;"">Pause to set real-time changing parameters</h5>
+                <style>
+                    #sim_pref > tr > td > *:not(.m_ignore) {
+                        margin-right: 5px;
+                    }
 
+                    #sim_pref > tr > td:not(.m_ignore) {
+                        padding-left: 10px;
+                    }
+
+                </style>
+                <table id="sim_pref">
+                    <tr>
+                        <td><span class="inline">Paused :</span></td>
+                        <td><input class="inline conf_elem" id="paused" type="checkbox"></td>
+                    </tr>
+                    <tr>
+                        <td><span class="inline">Days/second :</span></td>
+                        <td><input class="inline conf_elem" id="days_per_sec" type="number"></td>
+                        <td><span class="inline" id="days_per_sec_result"></span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="inline">Current date :</span></td>
+                        <td><input class="inline conf_elem" id="date" type="date"></td>
+                    </tr>
+                    <tr>
+                        <td><span class="inline">Current date (J2000) :</span></td>
+                        <td><input class="inline conf_elem" id="date_c" type="number"></td>
+                    </tr>
+                </table>
+                <hr>
+                <h3 style="color: #EEE">Preferences :</h3>
+                <table>
+                    <tr>
+                        <td><span class="inline">Active orbit line color :</span></td>
+                        <td><input class="inline conf_elem" id="ao_c" type="color"></td>
+                    </tr>
+                    <tr>
+                        <td><span class="inline">Default orbit line color :</span></td>
+                        <td><input class="inline conf_elem" id="do_c" type="color"></td>
+                    </tr>
+                </table>
+                <hr>
+                <h3 style="color: #EEE">About :</h3>
+                <p>This an Orrery model web app of the solar system made for the 2024 NASA Space Apps Challange</p>
+                <p>Resources used:</p>
+                <ul>
+                    <li><a href="https://github.com/mrdoob/three.js">three.js (rendering)</a></li>
+                    <li><a style="padding-right: 5%;" href="https://ssd.jpl.nasa.gov/planets/approx_pos.html">JPL Approximate Positions of the Planets (calculating bodies' position)</a></li>
+                </ul>
+                <br>
+                <p>This project has a GitHub! You can find it <a href="https://github.com/gedizbicer/gedizbicer.github.io">here</a>.</p>
             </div>
         </div>
-        <div id="overlay_middle">
-            <div id="overlay_top_bar">
-                <div class="inline elem_row" style="margin-left: 10px; margin-top: 10px; flex-grow: 2;">
-                    <h4 style="margin-right: 5px;">Go-to body:</h4>
-                    <input type="text" id="goto_body_input">
-                    <button id="goto_body_button">Go!</button>
-                    <h4 style="margin-right: 5px;">Face towards body:</h4>
-                    <input type="text" id="face_body_input">
-                    <button id="face_body_button">Turn!</button>
-                    <span id="body_result">Body not found!</span>
-                </div>
-            </div>
-            <div id="overlay_bottom_bar">
-                <span id="cam_pos_text" style="align-self: end; margin-right: 20px;"></span>
-            </div>
-        </div>
+        <span id="cam_pos_text" style="color: #FFF; position: absolute; left: 0; bottom: 0; width: 100%; text-align: right;"></span>
     </div>
 
     <script type="module" src="/scripts/main.js"></script>
@@ -61,7 +108,7 @@
         let minimized = false;
 
         minimize_button.addEventListener("click", () => {
-            sidebar.style.transform = "translateX(-98%)";
+            sidebar.style.transform = "translateX(calc(-100% + 1px))";
             sidebar.style.removeProperty("flexGrow");
             sidebar.style.position = "absolute";
             minimized = true;
