@@ -5,13 +5,13 @@ import { CelestialBody, DISTANCE_SCALE } from "./system.js";
 import { getBodyPos, getSemiMinor, rad } from "./kepler.js";
 import { KEPLER_PARAMS } from "./params.js";
 
-import { EARTH_RADIUS, PLANETS, MOONS, sun, initBodies } from "./bodies.js";
+import { EARTH_RADIUS, PLANETS, sun, initBodies } from "./bodies.js";
 
 const sleep = async ms => new Promise(r => setTimeout(r, ms));
 const sinEase = alpha => Math.sin((alpha + 1.5) * Math.PI) / 2 + 0.5;
 
-const IS_DEBUG = true;
 let CURR_TIME = 0;
+let PAUSED = false;
 
 let TRACKED_BODY = null;
 let FOLLOW_DISTANCE = 500;
@@ -38,6 +38,7 @@ const bodyResult = document.getElementById("body_result");
 const faceBodyInput = document.getElementById("face_body_input");
 const faceBodyButton = document.getElementById("face_body_button");
 
+const currentTrackedText = document.getElementById("current_body");
 const camText = document.getElementById("cam_pos_text");
 
 let camDirection = new THREE.Vector3();
@@ -76,9 +77,43 @@ renderer.domElement.addEventListener("mousedown", (e) => {
 
 renderer.setAnimationLoop(animate);
 
+handleLines(PLANETS);
+
+camera.position.set(0, 1000, 0);
+
+camera.position.add(camDirection.multiplyScalar(-200));
+
+controls.enableDamping = true;
+controls.target.set(0, 0, 0);
+controls.update();
+
+positionBodies(PLANETS);
+
+setInterval(() => {
+    if (!PAUSED) {
+        CURR_TIME += DAYS_PER_SECOND * DAYS_TO_CENTURIES * (UPDATE_RATE / 1e3);
+        positionBodies(PLANETS);
+    }
+}, UPDATE_RATE);
+
+setInterval(() => {
+    camText.textContent = `Camera X: ${camera.position.x.toFixed(2)}, Y: ${camera.position.y.toFixed(2)}, Z: ${camera.position.z.toFixed(2)}`;
+}, 100);
+
+window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.render(scene, camera);
+});
+
+setupConfigEventListeners(getEventListeners(), "conf_elem");
+
 function setTrackedBody(body) {
     if (body !== null && !(body instanceof CelestialBody))
         throw new Error("setTrackedBody: body must be a CelestialBody");
+
+    currentTrackedText.textContent = body?.mesh?.name ?? "None";
 
     const oldLine = ORBIT_LINES[TRACKED_BODY?.kParamName];
     
@@ -107,37 +142,6 @@ function handleLines(bodies) {
         ORBIT_LINES[body.kParamName].parent = body.mesh.parent;
     }   
 }
-
-handleLines(PLANETS);
-handleLines(MOONS);
-
-camera.position.set(0, 1000, 0);
-
-camera.position.add(camDirection.multiplyScalar(-200));
-
-controls.enableDamping = true;
-controls.target.set(0, 0, 0);
-controls.update();
-
-positionBodies(PLANETS);
-positionBodies(MOONS);
-
-setInterval(() => {
-    CURR_TIME += DAYS_PER_SECOND * DAYS_TO_CENTURIES * (UPDATE_RATE / 1e3);
-    positionBodies(PLANETS);
-    positionBodies(MOONS);
-}, UPDATE_RATE);
-
-setInterval(() => {
-    camText.textContent = `Camera X: ${camera.position.x.toFixed(2)}, Y: ${camera.position.y.toFixed(2)}, Z: ${camera.position.z.toFixed(2)}`;
-}, 100);
-
-window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.render(scene, camera);
-});
 
 function positionBodies(bodies) {
     for (const bodyName of Object.keys(bodies)) {
@@ -173,14 +177,15 @@ function animate() {
 gotoBodyButton.addEventListener("click", async (_) => {
     const bodyName = gotoBodyInput.value.toLowerCase().replace(" ", "_");
 
-    if (!(bodyName == "sun" || bodyName in PLANETS || bodyName in MOONS)) {
+    if (!(bodyName == "sun" || bodyName in PLANETS)) {
         bodyResult.textContent = "Body not found";
         bodyResult.style.color = "rgba(255, 128, 128, 255)";
         setTimeout(() => bodyResult.style.color = "rgba(255, 128, 128, 0)", 3000);
+        setTimeout(() => bodyResult.textContent = "", 4000);
         return;
     }
 
-    const body = PLANETS[bodyName] || MOONS[bodyName] || sun;
+    const body = PLANETS[bodyName] || sun;
 
     camera.getWorldDirection(camDirection);
     camDirection.normalize();
@@ -214,19 +219,21 @@ gotoBodyButton.addEventListener("click", async (_) => {
     bodyResult.textContent = "Done!";
     bodyResult.style.color = "rgba(128, 255, 128, 255)";
     setTimeout(() => bodyResult.style.color = "rgba(255, 128, 128, 0)", 3000);
+    setTimeout(() => bodyResult.textContent = "", 4000);
 });
 
 faceBodyButton.addEventListener("click", async (_) => {
     const bodyName = faceBodyInput.value.toLowerCase();
 
-    if (!(bodyName == "sun" || bodyName in PLANETS || bodyName in MOONS)) {
+    if (!(bodyName == "sun" || bodyName in PLANETS)) {
         bodyResult.textContent = "Body not found";
         bodyResult.style.color = "rgba(255, 128, 128, 255)";
         setTimeout(() => bodyResult.style.color = "rgba(255, 128, 128, 0)", 3000);
+        setTimeout(() => bodyResult.textContent = "", 4000);
         return;
     }
 
-    const body = PLANETS[bodyName] || MOONS[bodyName] || sun;
+    const body = PLANETS[bodyName] || sun;
 
     setTrackedBody(null);
 
@@ -253,6 +260,7 @@ faceBodyButton.addEventListener("click", async (_) => {
     bodyResult.textContent = "Done!";
     bodyResult.style.color = "rgba(128, 255, 128, 255)";
     setTimeout(() => bodyResult.style.color = "rgba(255, 128, 128, 0)", 3000);
+    setTimeout(() => bodyResult.textContent = "", 4000);
 });
 
 function updateCurve(curveObj, keplerParams) {
@@ -331,3 +339,113 @@ function createPositionLine(keplerParams, days = 1000, color = 0xff0000) {
     return new THREE.Line(geometry, material);
 }
 
+function setupConfigEventListeners(eventListeners, className) {
+    const configObjects = document.getElementsByClassName(className);
+
+    for (const element of configObjects) {
+        const id = element.id;
+
+        const listeners = eventListeners[id];
+
+        if (!listeners || typeof listeners !== "object") {
+            console.warn(`No valid listeners for: ${id}`);
+            continue;
+        }
+
+        for (const [ key, value ] of Object.entries(listeners)) {
+            console.log(`Setting up listener for ${id} on ${key}`);
+            element.addEventListener(key, value);
+        }
+    }
+}
+
+function centuryToDate(century) {
+    century += 20;
+    const year = Math.floor((century - century % 1) * 100) + Math.floor((century % 1) * 100);
+
+    const days = (century - year / 100) * 36525;
+
+    return new Date(year, 0, days);
+}
+
+function dateDiff(first, second) {        
+    return Math.round((second - first) / (1000 * 60 * 60 * 24));
+}
+
+function getEventListeners() {
+    return {
+        paused: {
+            input: () => {
+                const self = document.getElementById("paused");
+                
+                PAUSED = self.checked;
+            }
+        },
+        days_per_sec: {
+            input: () => {
+                const self = document.getElementById("days_per_sec");
+
+                const value = parseFloat(self.value);
+
+                DAYS_PER_SECOND = isNaN(value) ? 0 : value;
+            }
+        },
+        date: {
+            input: () => {
+                const self = document.getElementById("date");
+                const value = new Date(self.value);
+
+                const dayDif = dateDiff(new Date(2000, 0, 1), value);
+
+                CURR_TIME = DAYS_TO_CENTURIES * dayDif;
+                
+                positionBodies(PLANETS);
+            }
+        },
+        date_c: {
+            input: () => {
+                const self = document.getElementById("date_c");
+                const value = parseFloat(self.value);
+
+                CURR_TIME = isNaN(value ? 0 : value);
+
+                positionBodies(PLANETS);
+            }
+        },
+        ao_c: {
+            input: () => {
+                const self = document.getElementById("ao_c");
+                const value = self.value;
+
+                ACTIVE_LINE_MATERIAL.color = new THREE.Color(value);
+                setTrackedBody(TRACKED_BODY);
+            }
+        },
+        do_c: {
+            input: () => {
+                const self = document.getElementById("do_c");
+                const value = self.value;
+
+                DEFAULT_LINE_MATERIAL.color = new THREE.Color(value);
+                setTrackedBody(TRACKED_BODY);
+            }
+        }
+    };
+}
+
+document.getElementById("days_per_sec").value = DAYS_PER_SECOND;
+document.getElementById("paused").checked = PAUSED;
+document.getElementById("ao_c").value = ACTIVE_LINE_MATERIAL.color.getHexString();
+document.getElementById("do_c").value = DEFAULT_LINE_MATERIAL.color.getHexString();
+
+const dateInput = document.getElementById("date");
+const dateCenturyInput = document.getElementById("date_c");
+
+setInterval(() => {
+    if (PAUSED)
+        return;
+
+    dateInput.valueAsDate = centuryToDate(CURR_TIME);
+    dateCenturyInput.value = CURR_TIME.toFixed(10);
+
+}, UPDATE_RATE / 2);

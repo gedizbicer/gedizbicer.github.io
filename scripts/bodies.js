@@ -5,7 +5,6 @@ export const EARTH_RADIUS = 0.00004259;
 export const EARTH_MASS = 5.972e24;
 
 export const PLANETS = {};
-export const MOONS = {};
 
 export let sun = null;
 
@@ -71,11 +70,5 @@ export function initBodies(scene) {
         mass: 1,
         radius: EARTH_RADIUS,
         color: 0xffffff
-    });
-
-    MOONS.moon = new CelestialBody("Moon", PLANETS.earth, scene, {
-        mass: EARTH_MASS * 0.0123,
-        radius: EARTH_RADIUS * 0.2727,
-        color: 0x888888
     });
 }
