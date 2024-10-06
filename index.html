@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lorem ipsum</title>
+    <link rel="stylesheet" href="/styles/style.css">
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@v0.169.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.169.0/examples/jsm/",
+                "kepler": "/scripts/kepler.js",
+                "system": "/scripts/system.js",
+                "params": "/scripts/params.js"
+            }
+        }
+    </script>
+</head>
+<body>
+    <!-- <div class="header no_margin no_padding">
+        <h1 class="h_text no_margin no_padding">Lorem ipsum</h1>
+    </div> -->
+    <!-- <div class="main_renderer">
+        <canvas class="full_size no_margin no_padding" id="glcanvas"></canvas>
+    </div> -->
+
+    <div id="overlay">
+        <div id="overlay_left_sidebar">
+            <div class="title_bar inline elem_row">
+                <button id="left_sidebar_minimize" class="auto_ignore">×</button>
+                <span>Hi!</span>
+            </div>
+            <hr>
+            <div class="content">
+
+            </div>
+        </div>
+        <div id="overlay_middle">
+            <div id="overlay_top_bar">
+                <div class="inline elem_row" style="margin-left: 10px; margin-top: 10px; flex-grow: 2;">
+                    <h4 style="margin-right: 5px;">Go-to body:</h4>
+                    <input type="text" id="goto_body_input">
+                    <button id="goto_body_button">Go!</button>
+                    <h4 style="margin-right: 5px;">Face towards body:</h4>
+                    <input type="text" id="face_body_input">
+                    <button id="face_body_button">Turn!</button>
+                    <span id="body_result">Body not found!</span>
+                </div>
+            </div>
+            <div id="overlay_bottom_bar">
+                <span id="cam_pos_text" style="align-self: end; margin-right: 20px;"></span>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/scripts/main.js"></script>
+
+    <script>
+        const sidebar = document.getElementById("overlay_left_sidebar");
+        const minimize_button = document.getElementById("left_sidebar_minimize");
+
+        let minimized = false;
+
+        minimize_button.addEventListener("click", () => {
+            sidebar.style.transform = "translateX(-98%)";
+            sidebar.style.removeProperty("flexGrow");
+            sidebar.style.position = "absolute";
+            minimized = true;
+        });
+
+        sidebar.addEventListener("mouseenter", () => {
+            if (!minimized)
+                return;
+
+            sidebar.style.transform = "translateX(0)";
+            sidebar.style.flexGrow = "0.25";
+            sidebar.style.position = "relative";
+        });
+    </script>
+</body>
+</html>
