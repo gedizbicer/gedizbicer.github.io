@@ -3,6 +3,14 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+p {
+    text-indent: 10px;
+    text-align: justify;
+    padding-right: 5%;
 }
 
 hr:not(.auto_ignore) {
@@ -49,10 +57,6 @@ hr:not(.auto_ignore) {
     height: 100%;
     z-index: 1;
     pointer-events: none;
-
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
 }
 
 #overlay > * > * {
@@ -62,7 +66,7 @@ hr:not(.auto_ignore) {
 
 * {
     font-family: "Inter", sans-serif;
-    color: white;
+    color: rgb(173, 173, 173);
 }
 
 input:not(.auto_ignore) {
@@ -72,6 +76,7 @@ input:not(.auto_ignore) {
     border-style: solid;
     outline-color: #404040;
     outline-style: solid;
+    appearance: textfield;
 }
 
 #overlay_top_bar {
@@ -117,22 +122,28 @@ input:not(.auto_ignore) {
 
     background: linear-gradient(90deg, rgba(23, 23, 23, 0.85) 98%, rgba(255, 255, 255, 0) 100%);
     height: 100%;
-    
-    flex-grow: 0.25;
+    width: 30%;
     
     transition: all 0.3s cubic-bezier(0.215, 0.610, 0.355, 1);
 
     pointer-events: all;
+
+    transform: translateX(-90%);
 }
 
 #overlay_left_sidebar:hover {
-    flex-grow: 0.3;
+    transform: none;
 }
 
 #overlay_left_sidebar > .content {
     overflow: auto;
     padding-left: 5px;
-    background-color: red;
+    width: 100%;
+}
+
+#overlay_left_sidebar > .content > * {
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 #overlay_left_sidebar > .content > *:not(.filter_ignore):hover {
@@ -143,11 +154,13 @@ input:not(.auto_ignore) {
 #goto_body_button {
     margin-left: 5px;
     margin-right: 5px;
+    width: 100%;
 }
 
 #face_body_button {
     margin-left: 5px;
     margin-right: 5px;
+    width: 100%;
 }
 
 button:not(.auto_ignore) {
@@ -190,7 +203,6 @@ button:not(.auto_ignore) {
     
     font-size: xx-large;
     font-weight: bold;
-    float: right;
 }
 
 .title_bar > button:hover {
