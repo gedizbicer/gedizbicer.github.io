@@ -65,10 +65,4 @@ export function initBodies(scene) {
         radius: EARTH_RADIUS * 3.883,
         color: 0x0040ad
     });
-
-    PLANETS.cool_planet = new CelestialBody("Cool Planet", sun, scene, {
-        mass: 1,
-        radius: EARTH_RADIUS,
-        color: 0xffffff
-    });
 }
